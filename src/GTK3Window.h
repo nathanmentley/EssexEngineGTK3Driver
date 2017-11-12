@@ -29,14 +29,14 @@ namespace GTK3{
             }
             
             WeakPointer<GtkWindow> GetWindow() {
-                return window.GetWeakPointer();
+                return window;
             }
             
             WeakPointer<GtkFixed> GetContainer() {
-                return container.GetWeakPointer();
+                return container;
             }
         private:
-            UniquePointer<GtkWindow> window;
-            UniquePointer<GtkFixed> container;
+            WeakPointer<GtkWindow> window;
+            WeakPointer<GtkFixed> container;
     };
 }}};

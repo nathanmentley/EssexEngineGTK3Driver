@@ -23,7 +23,7 @@ void EssexEngine::Drivers::GTK3::GTK3Driver::RepaintWindows() {
 }
 
 //IWIndowDriver
-EssexEngine::UniquePointer<EssexEngine::Daemons::Window::IWindow> EssexEngine::Drivers::GTK3::GTK3Driver::CreateWindow(EssexEngine::Daemons::Window::WindowDef def) {
+EssexEngine::WeakPointer<EssexEngine::Daemons::Window::IWindow> EssexEngine::Drivers::GTK3::GTK3Driver::CreateWindow(EssexEngine::Daemons::Window::WindowDef def) {
     GtkWindow* window = (GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_title(window, def.Title.c_str());
@@ -36,10 +36,10 @@ EssexEngine::UniquePointer<EssexEngine::Daemons::Window::IWindow> EssexEngine::D
 
     gtk_widget_show_all((GtkWidget*)window);
 
-    return UniquePointer<Daemons::Window::IWindow>(new GTK3Window(window, (GtkFixed*)container));
+    return WeakPointer<Daemons::Window::IWindow>(new GTK3Window(window, (GtkFixed*)container));
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::AddButton(SmartPointer<Daemons::Window::IWindow> window, EssexEngine::Daemons::Window::ButtonDef def) {
+void EssexEngine::Drivers::GTK3::GTK3Driver::AddButton(WeakPointer<Daemons::Window::IWindow> window, EssexEngine::Daemons::Window::ButtonDef def) {
     GtkWidget* button = gtk_button_new_with_label("Hello World");
 
     gtk_fixed_put(((GTK3Window*)window.Get())->GetContainer().Get(), button, def.X, def.Y);
@@ -47,7 +47,7 @@ void EssexEngine::Drivers::GTK3::GTK3Driver::AddButton(SmartPointer<Daemons::Win
     gtk_widget_show_all((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::AddLabel(SmartPointer<Daemons::Window::IWindow> window, EssexEngine::Daemons::Window::LabelDef def) {
+void EssexEngine::Drivers::GTK3::GTK3Driver::AddLabel(WeakPointer<Daemons::Window::IWindow> window, EssexEngine::Daemons::Window::LabelDef def) {
     GtkWidget* button = gtk_button_new_with_label("Hello World");
     
     gtk_fixed_put(((GTK3Window*)window.Get())->GetContainer().Get(), button, def.X, def.Y);
@@ -55,6 +55,6 @@ void EssexEngine::Drivers::GTK3::GTK3Driver::AddLabel(SmartPointer<Daemons::Wind
     gtk_widget_show_all((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::CloseWindow(SmartPointer<Daemons::Window::IWindow> window) {
+void EssexEngine::Drivers::GTK3::GTK3Driver::CloseWindow(WeakPointer<Daemons::Window::IWindow> window) {
     
 }

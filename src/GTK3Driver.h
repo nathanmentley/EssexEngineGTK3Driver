@@ -15,6 +15,7 @@
 #include <gtk/gtk.h>
 
 #include <EssexEngineCore/BaseDriver.h>
+#include <EssexEngineCore/LogDaemon.h>
 #include <EssexEngineCore/Context.h>
 #include <EssexEngineWindowDaemon/IWindowDriver.h>
 
@@ -31,8 +32,8 @@ namespace GTK3{
         
         //IDriver
         void Init() {
-            if(GetContext()->HasDriver<Core::Logging::ILogDriver>()) {
-                GetContext()->GetDriver<Core::Logging::ILogDriver>()->LogLine(
+            if(GetContext()->HasDaemon<Core::Logging::LogDaemon>()) {
+                GetContext()->GetDaemon<Core::Logging::LogDaemon>()->LogLine(
                     "Loading Driver [%s] [%s]",
                     GetDriverName().c_str(),
                     GetDriverVersion().c_str()
@@ -42,10 +43,10 @@ namespace GTK3{
         
         //IWindowDriver
         void RepaintWindows();
-        UniquePointer<Daemons::Window::IWindow> CreateWindow(Daemons::Window::WindowDef def);
-        void AddButton(SmartPointer<Daemons::Window::IWindow> window, Daemons::Window::ButtonDef def);
-        void AddLabel(SmartPointer<Daemons::Window::IWindow> window, Daemons::Window::LabelDef def);
-        void CloseWindow(SmartPointer<Daemons::Window::IWindow> window);
+        WeakPointer<Daemons::Window::IWindow> CreateWindow(Daemons::Window::WindowDef def);
+        void AddButton(WeakPointer<Daemons::Window::IWindow> window, Daemons::Window::ButtonDef def);
+        void AddLabel(WeakPointer<Daemons::Window::IWindow> window, Daemons::Window::LabelDef def);
+        void CloseWindow(WeakPointer<Daemons::Window::IWindow> window);
         
         //BaseDriver
         std::string GetDriverName() { return "GTK3"; }
