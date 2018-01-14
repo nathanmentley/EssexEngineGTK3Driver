@@ -26,31 +26,31 @@ namespace Drivers{
 namespace GTK3{
     class GTK3Driver:public Core::Drivers::Base::BaseDriver, public Daemons::Window::IWindowDriver
     {
-    public:
-        GTK3Driver(WeakPointer<Context> _context);
-        ~GTK3Driver();
-        
-        //IDriver
-        void Init() {
-            if(GetContext()->HasDaemon<Core::Logging::LogDaemon>()) {
-                GetContext()->GetDaemon<Core::Logging::LogDaemon>()->LogLine(
-                    "Loading Driver [%s] [%s]",
-                    GetDriverName().c_str(),
-                    GetDriverVersion().c_str()
-                );
+        public:
+            GTK3Driver(WeakPointer<Context> _context);
+            ~GTK3Driver();
+            
+            //IDriver
+            void Init() {
+                if(GetContext()->HasDaemon<Core::Logging::LogDaemon>()) {
+                    GetContext()->GetDaemon<Core::Logging::LogDaemon>()->LogLine(
+                        "Loading Driver [%s] [%s]",
+                        GetDriverName().c_str(),
+                        GetDriverVersion().c_str()
+                    );
+                }
             }
-        }
-        
-        //IWindowDriver
-        void RepaintWindows();
-        WeakPointer<Daemons::Window::IWindow> CreateWindow(Daemons::Window::WindowDef def);
-        void AddButton(WeakPointer<Daemons::Window::IWindow> window, Daemons::Window::ButtonDef def);
-        void AddLabel(WeakPointer<Daemons::Window::IWindow> window, Daemons::Window::LabelDef def);
-        void CloseWindow(WeakPointer<Daemons::Window::IWindow> window);
-        
-        //BaseDriver
-        std::string GetDriverName() { return "GTK3"; }
-        std::string GetDriverVersion() { return ESSEX_ENGINE_VERSION; }
-    private:
+            
+            //IWindowDriver
+            void RepaintWindows();
+            WeakPointer<Daemons::Window::IWindow> CreateWindow(WeakPointer<Daemons::Window::WindowDef> def);
+            void AddButton(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::ButtonDef> def);
+            void AddLabel(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::LabelDef> def);
+            void CloseWindow(WeakPointer<Daemons::Window::IWindow> window);
+            
+            //BaseDriver
+            std::string GetDriverName() { return "GTK3"; }
+            std::string GetDriverVersion() { return ESSEX_ENGINE_VERSION; }
+        private:
     };
 }}};
