@@ -20,6 +20,7 @@
 #include <EssexEngineWindowDaemon/IWindowDriver.h>
 
 #include <EssexEngineGTK3Driver/GTK3Window.h>
+#include <EssexEngineGTK3Driver/GTK3RenderContext.h>
 
 namespace EssexEngine{
 namespace Drivers{
@@ -46,6 +47,10 @@ namespace GTK3{
             WeakPointer<Daemons::Window::IWindow> CreateWindow(WeakPointer<Daemons::Window::WindowDef> def);
             void AddButton(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::ButtonDef> def);
             void AddLabel(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::LabelDef> def);
+            WeakPointer<Daemons::Window::IRenderContext> AddCanvas(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::CanvasDef> def);
+            void RepaintCanvas(WeakPointer<Daemons::Window::IRenderContext> context);
+            int GetScreenWidth(WeakPointer<Daemons::Window::IRenderContext> target);
+            int GetScreenHeight(WeakPointer<Daemons::Window::IRenderContext> target);
             void CloseWindow(WeakPointer<Daemons::Window::IWindow> window);
             
             //BaseDriver
