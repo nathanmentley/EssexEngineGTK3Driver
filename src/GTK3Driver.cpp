@@ -11,27 +11,38 @@
 
 #include <EssexEngineGTK3Driver/GTK3Driver.h>
 
-EssexEngine::Drivers::GTK3::GTK3Driver::GTK3Driver(WeakPointer<Context> _context):BaseDriver(_context) {
+using EssexEngine::WeakPointer;
+
+using EssexEngine::Daemons::Window::IRenderContext;
+using EssexEngine::Daemons::Window::IWindow;
+using EssexEngine::Daemons::Window::WindowDef;
+using EssexEngine::Daemons::Window::LabelDef;
+using EssexEngine::Daemons::Window::ButtonDef;
+using EssexEngine::Daemons::Window::CanvasDef;
+
+using EssexEngine::Drivers::GTK3::GTK3Driver;
+
+GTK3Driver::GTK3Driver(WeakPointer<Context> _context):BaseDriver(_context) {
     gtk_init(NULL,NULL);
 }
 
-EssexEngine::Drivers::GTK3::GTK3Driver::~GTK3Driver() {
+GTK3Driver::~GTK3Driver() {
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::RepaintWindows() {
+void GTK3Driver::RepaintWindows() {
     while(gtk_events_pending()) {
         gtk_main_iteration();
     }
 }
 
 static void gtk_window_callback(GtkWidget *widget, gpointer data) {
-    EssexEngine::Daemons::Window::WindowDef* window = (EssexEngine::Daemons::Window::WindowDef*)data;
+    WindowDef* window = (WindowDef*)data;
 
     window->OnClose();
 }
 
 //IWIndowDriver
-EssexEngine::WeakPointer<EssexEngine::Daemons::Window::IWindow> EssexEngine::Drivers::GTK3::GTK3Driver::CreateWindow(EssexEngine::WeakPointer<EssexEngine::Daemons::Window::WindowDef> def) {
+WeakPointer<IWindow> GTK3Driver::CreateWindow(WeakPointer<WindowDef> def) {
     GtkWindow* window = (GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_title(window, def->Title.c_str());
@@ -44,16 +55,16 @@ EssexEngine::WeakPointer<EssexEngine::Daemons::Window::IWindow> EssexEngine::Dri
 
     gtk_widget_show_all((GtkWidget*)window);
 
-    return WeakPointer<Daemons::Window::IWindow>(new GTK3Window(window, (GtkFixed*)container));
+    return WeakPointer<IWindow>(new GTK3Window(window, (GtkFixed*)container));
 }
 
-static void gtk_button_callback( GtkWidget *widget, gpointer data) {
-    EssexEngine::Daemons::Window::ButtonDef* button = (EssexEngine::Daemons::Window::ButtonDef*)data;
+static void gtk_button_callback(GtkWidget *widget, gpointer data) {
+    ButtonDef* button = (ButtonDef*)data;
 
     button->OnClick();
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::AddButton(WeakPointer<Daemons::Window::IWindow> window, EssexEngine::WeakPointer<EssexEngine::Daemons::Window::ButtonDef> def) {
+void GTK3Driver::AddButton(WeakPointer<IWindow> window, WeakPointer<ButtonDef> def) {
     GtkWidget* button = gtk_button_new_with_label(def->Title.c_str());
 
     g_signal_connect(
@@ -68,7 +79,7 @@ void EssexEngine::Drivers::GTK3::GTK3Driver::AddButton(WeakPointer<Daemons::Wind
     gtk_widget_show_all((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::AddLabel(WeakPointer<Daemons::Window::IWindow> window, EssexEngine::WeakPointer<EssexEngine::Daemons::Window::LabelDef> def) {
+void GTK3Driver::AddLabel(WeakPointer<IWindow> window, WeakPointer<LabelDef> def) {
     GtkWidget* label = gtk_label_new(def->Content.c_str());
     
     gtk_fixed_put(((GTK3Window*)window.Get())->GetContainer().Get(), label, def->X, def->Y);
@@ -76,21 +87,27 @@ void EssexEngine::Drivers::GTK3::GTK3Driver::AddLabel(WeakPointer<Daemons::Windo
     gtk_widget_show_all((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
 }
 
-EssexEngine::WeakPointer<EssexEngine::Daemons::Window::IRenderContext> EssexEngine::Drivers::GTK3::GTK3Driver::AddCanvas(WeakPointer<Daemons::Window::IWindow> window, WeakPointer<Daemons::Window::CanvasDef> def) {
-    return WeakPointer<GTK3RenderContext>(new GTK3RenderContext(def->Width, def->Height)).Cast<Daemons::Window::IRenderContext>();
+WeakPointer<IRenderContext> GTK3Driver::AddCanvas(WeakPointer<IWindow> window, WeakPointer<CanvasDef> def) {
+    WeakPointer<GtkDrawingArea> image = WeakPointer<GtkWidget>(gtk_drawing_area_new()).Cast<GtkDrawingArea>();
+    
+    gtk_fixed_put(((GTK3Window*)window.Get())->GetContainer().Get(), image.Cast<GtkWidget>().Get(), def->X, def->Y);
+    
+    gtk_widget_show_all((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
+    
+    return WeakPointer<GTK3RenderContext>(new GTK3RenderContext(image, def->Width, def->Height)).Cast<IRenderContext>();
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::RepaintCanvas(WeakPointer<Daemons::Window::IRenderContext> context) {
+void GTK3Driver::RepaintCanvas(WeakPointer<IRenderContext> context) {
 }
 
-int EssexEngine::Drivers::GTK3::GTK3Driver::GetScreenWidth(WeakPointer<Daemons::Window::IRenderContext> context) {
+int GTK3Driver::GetScreenWidth(WeakPointer<IRenderContext> context) {
     return context.Cast<GTK3RenderContext>()->GetWidth();
 }
 
-int EssexEngine::Drivers::GTK3::GTK3Driver::GetScreenHeight(WeakPointer<Daemons::Window::IRenderContext> context) {
+int GTK3Driver::GetScreenHeight(WeakPointer<IRenderContext> context) {
     return context.Cast<GTK3RenderContext>()->GetHeight();
 }
 
-void EssexEngine::Drivers::GTK3::GTK3Driver::CloseWindow(WeakPointer<Daemons::Window::IWindow> window) {
+void GTK3Driver::CloseWindow(WeakPointer<IWindow> window) {
     gtk_widget_destroy((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
 }

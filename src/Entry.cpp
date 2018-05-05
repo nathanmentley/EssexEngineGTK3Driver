@@ -11,10 +11,16 @@
 
 #include <EssexEngineGTK3Driver/GTK3Driver.h>
 
+using EssexEngine::Context;
+using EssexEngine::WeakPointer;
+
+using EssexEngine::Drivers::GTK3::GTK3Driver;
+using EssexEngine::Daemons::Window::IWindowDriver;
+
 extern "C" {
-    void driver_init(EssexEngine::Context* context) {
-        EssexEngine::Drivers::GTK3::GTK3Driver* gtk3Driver = new EssexEngine::Drivers::GTK3::GTK3Driver(context);
-        
-        context->RegisterDriver<EssexEngine::Daemons::Window::IWindowDriver>(gtk3Driver);
+    void driver_init(WeakPointer<Context> context) {
+        context->RegisterDriver<IWindowDriver>(
+            WeakPointer<IWindowDriver>(new GTK3Driver(context)) 
+        );
     }
 }
