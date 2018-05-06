@@ -15,6 +15,7 @@
 #include <cairo.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
+//#include <gdk/gdk.h>
 
 #include <EssexEngineCore/BaseUniquePointer.h>
 #include <EssexEngineWindowDaemon/IRenderContext.h>
@@ -32,11 +33,8 @@ namespace GTK3{
                         GTK3RenderContext::DeleteCanvas
                     )
                 ),
-                cr(
-                    BaseUniquePointer<cairo_t>(
-                        gdk_cairo_create(gtk_widget_get_parent_window(canvas.ToWeakPointer().Cast<GtkWidget>().Get())),
-                        GTK3RenderContext::DeleteCairo
-                    )
+                window(
+                    gtk_widget_get_parent_window(canvas.ToWeakPointer().Cast<GtkWidget>().Get())
                 )
             {
                 height = _height;
@@ -45,24 +43,34 @@ namespace GTK3{
             ~GTK3RenderContext() {}
             
             void RenderToContext(WeakPointer<void> pixels) {
-                GdkPixbuf* pixbuf = gdk_pixbuf_new_from_data(
-                    pixels.Cast<guchar>().Get(),
-                    GDK_COLORSPACE_RGB,
-                    true,
-                    8,
-                    height,
-                    width,
-                    width * 4,
-                    NULL,
-                    NULL
+                //Build drawing context, and stage it in a unique pointer to clean up memory
+                BaseUniquePointer<GdkDrawingContext> drawingContext = BaseUniquePointer<GdkDrawingContext>(
+                    gdk_window_begin_draw_frame(window.Get(), gdk_window_get_visible_region(window.Get())),
+                    [=] (GdkDrawingContext* ptr) {
+                        gdk_window_end_draw_frame(window.Get(), ptr);
+                    }
                 );
 
-                
-                gdk_cairo_set_source_pixbuf(cr.Get(), pixbuf, 0, 0);
-                cairo_paint(cr.Get());
+                //We don't need to memory manage these, but I like our pointer stuff, so let's use WeakPointers
+                WeakPointer<GdkPixbuf> pixbuf = WeakPointer<GdkPixbuf>(
+                    gdk_pixbuf_new_from_data(
+                        pixels.Cast<guchar>().Get(),
+                        GDK_COLORSPACE_RGB,
+                        true,
+                        8,
+                        height,
+                        width,
+                        width * 4,
+                        NULL,
+                        NULL
+                    )
+                );
+                WeakPointer<cairo_t> cr = WeakPointer<cairo_t>(
+                    gdk_drawing_context_get_cairo_context(drawingContext.Get())
+                );
 
-                g_object_unref(G_OBJECT(pixbuf));
-                gtk_widget_queue_resize(canvas.ToWeakPointer().Cast<GtkWidget>().Get());
+                gdk_cairo_set_source_pixbuf(cr.Get(), pixbuf.Get(), 0, 0);
+                cairo_paint(cr.Get());
             }
 
             int GetHeight() {
@@ -73,19 +81,12 @@ namespace GTK3{
                 return width;
             }
 
-            WeakPointer<GtkDrawingArea> GetCanvas() {
-                return canvas.ToWeakPointer();
-            }
-
-            static void DeleteCairo(cairo_t* ptr) {
-                cairo_destroy(ptr);
-            }
             static void DeleteCanvas(GtkDrawingArea* ptr) {
 
             }
         private:
             BaseUniquePointer<GtkDrawingArea> canvas;
-            BaseUniquePointer<cairo_t> cr;
+            WeakPointer<GdkWindow> window;
 
             int height;
             int width;
