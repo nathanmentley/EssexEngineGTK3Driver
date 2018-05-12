@@ -1,7 +1,7 @@
 /* 
  * Essex Engine
  * 
- * Copyright (C) 2017 Nathan Mentley - All Rights Reserved
+ * Copyright (C) 2018 Nathan Mentley - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the BSD license.
  *
@@ -17,6 +17,8 @@
 #include <EssexEngineCore/BaseDriver.h>
 #include <EssexEngineCore/LogDaemon.h>
 #include <EssexEngineCore/Context.h>
+
+#include <EssexEngineInputDaemon/IInputDriver.h>
 #include <EssexEngineWindowDaemon/IWindowDriver.h>
 
 #include <EssexEngineGTK3Driver/GTK3Window.h>
@@ -25,7 +27,7 @@
 namespace EssexEngine{
 namespace Drivers{
 namespace GTK3{
-    class GTK3Driver:public Core::Drivers::Base::BaseDriver, public Daemons::Window::IWindowDriver
+    class GTK3Driver:public Core::Drivers::Base::BaseDriver, public Daemons::Window::IWindowDriver, public Daemons::Input::IInputDriver
     {
         public:
             GTK3Driver(WeakPointer<Context> _context);
@@ -53,6 +55,10 @@ namespace GTK3{
             int GetScreenHeight(WeakPointer<Daemons::Window::IRenderContext> target);
             void CloseWindow(WeakPointer<Daemons::Window::IWindow> window);
             
+            //IInputDriver
+            bool IsKeyPressed(WeakPointer<Daemons::Window::IRenderContext> context, Daemons::Input::KeyboardButton::InputKeys key);
+            bool IsMousePressed(WeakPointer<Daemons::Window::IRenderContext> context, Daemons::Input::MouseButton::MouseButtons key,  Daemons::Input::MouseEventLocation &data);
+
             //BaseDriver
             std::string GetDriverName() { return "GTK3"; }
             std::string GetDriverVersion() { return ESSEX_ENGINE_VERSION; }

@@ -1,7 +1,7 @@
 /* 
  * Essex Engine
  * 
- * Copyright (C) 2017 Nathan Mentley - All Rights Reserved
+ * Copyright (C) 2018 Nathan Mentley - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the BSD license.
  *
@@ -12,6 +12,10 @@
 #include <EssexEngineGTK3Driver/GTK3Driver.h>
 
 using EssexEngine::WeakPointer;
+
+using EssexEngine::Daemons::Input::MouseEventLocation;
+using EssexEngine::Daemons::Input::KeyboardButton::InputKeys;
+using EssexEngine::Daemons::Input::MouseButton::MouseButtons;
 
 using EssexEngine::Daemons::Window::IRenderContext;
 using EssexEngine::Daemons::Window::IWindow;
@@ -110,4 +114,13 @@ int GTK3Driver::GetScreenHeight(WeakPointer<IRenderContext> context) {
 
 void GTK3Driver::CloseWindow(WeakPointer<IWindow> window) {
     gtk_widget_destroy((GtkWidget*)(((GTK3Window*)window.Get())->GetWindow().Get()));
+}
+
+//IInputDriver
+bool GTK3Driver::IsKeyPressed(WeakPointer<IRenderContext> context, InputKeys key) {
+    return false;
+}
+
+bool GTK3Driver::IsMousePressed(WeakPointer<IRenderContext> context, MouseButtons key,  MouseEventLocation &data) {
+    return false;
 }
